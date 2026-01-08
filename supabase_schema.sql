@@ -53,6 +53,8 @@ CREATE TABLE IF NOT EXISTS interviews (
   location TEXT NOT NULL,
   notes TEXT,
   is_confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+  status TEXT NOT NULL DEFAULT 'scheduled',
+  result TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ
 );
@@ -146,3 +148,6 @@ CREATE POLICY "Admin full access to broadcasts" ON broadcasts FOR ALL USING (tru
 
 DROP POLICY IF EXISTS "Admin full access to admins" ON admins;
 CREATE POLICY "Allow all access to admins" ON admins FOR ALL TO anon USING (true) WITH CHECK (true);
+
+ALTER TABLE interviews ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'scheduled';
+ALTER TABLE interviews ADD COLUMN IF NOT EXISTS result TEXT;

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../models/job.dart';
 import '../../config/theme.dart';
 import 'application_form_screen.dart';
+import 'voice_apply_screen.dart';
+import 'cv_upload_screen.dart';
 
 class JobDetailScreen extends StatelessWidget {
   final Job job;
@@ -153,10 +155,85 @@ class JobDetailScreen extends StatelessWidget {
           child: ElevatedButton(
             onPressed: job.isOpen
                 ? () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ApplicationFormScreen(job: job),
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              'Pilih Metode Pelamaran',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 24),
+                            
+                            // Manual Input
+                            _buildModeOption(
+                              context,
+                              icon: Icons.edit_document,
+                              title: 'Isi Manual',
+                              subtitle: 'Isi formulir lamaran secara manual',
+                              color: AppTheme.primaryColor,
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ApplicationFormScreen(job: job),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            
+                            // Voice Input
+                            _buildModeOption(
+                              context,
+                              icon: Icons.mic,
+                              title: 'Voice Input',
+                              subtitle: 'Isi formulir dengan suara (Beta)',
+                              color: AppTheme.secondaryColor,
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => VoiceApplyScreen(job: job),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            
+                            // Upload CV
+                            _buildModeOption(
+                              context,
+                              icon: Icons.upload_file,
+                              title: 'Upload CV',
+                              subtitle: 'Otomatis isi data dari CV (PDF)',
+                              color: AppTheme.accentColor,
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => CVUploadScreen(job: job),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   }
@@ -232,6 +309,65 @@ class JobDetailScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+  Widget _buildModeOption(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.white,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade200),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

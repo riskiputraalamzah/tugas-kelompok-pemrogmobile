@@ -107,10 +107,13 @@ class AppProvider extends ChangeNotifier {
   }
 
   Future<void> loadOpenJobs() async {
+    _setLoading(true);
     try {
       _jobs = await _jobRepo.getOpenJobs();
+      _setLoading(false);
       notifyListeners();
     } catch (e) {
+      _setLoading(false);
       _setError('Gagal memuat lowongan: $e');
     }
   }
@@ -134,10 +137,13 @@ class AppProvider extends ChangeNotifier {
   }
 
   Future<void> loadBroadcasts() async {
+    _setLoading(true);
     try {
       _broadcasts = await _broadcastRepo.getActiveBroadcasts();
+      _setLoading(false);
       notifyListeners();
     } catch (e) {
+      _setLoading(false);
       _setError('Gagal memuat broadcast: $e');
     }
   }
@@ -305,16 +311,67 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> updateInterview(Interview interview) async {
+    try {
+      _setLoading(true);
+      await _interviewRepo.updateInterview(interview);
+      await loadInterviews();
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _setError('Gagal memperbarui interview: $e');
+      _setLoading(false);
+      return false;
+    }
+  }
+
   // Broadcast Methods
+  Future<void> loadAllBroadcasts() async {
+    try {
+      _broadcasts = await _broadcastRepo.getAllBroadcasts();
+      notifyListeners();
+    } catch (e) {
+      _setError('Gagal memuat broadcast: $e');
+    }
+  }
+
   Future<bool> createBroadcast(Broadcast broadcast) async {
     _setLoading(true);
     try {
       await _broadcastRepo.insertBroadcast(broadcast);
-      await loadBroadcasts();
+      await loadAllBroadcasts();
       _setLoading(false);
       return true;
     } catch (e) {
       _setError('Gagal membuat broadcast: $e');
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  Future<bool> updateBroadcast(Broadcast broadcast) async {
+    _setLoading(true);
+    try {
+      await _broadcastRepo.updateBroadcast(broadcast);
+      await loadAllBroadcasts();
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _setError('Gagal memperbarui broadcast: $e');
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  Future<bool> deleteBroadcast(String id) async {
+    _setLoading(true);
+    try {
+      await _broadcastRepo.deleteBroadcast(id);
+      await loadAllBroadcasts();
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _setError('Gagal menghapus broadcast: $e');
       _setLoading(false);
       return false;
     }

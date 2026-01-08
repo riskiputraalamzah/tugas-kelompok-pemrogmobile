@@ -60,6 +60,12 @@ class _JobManagementScreenState extends State<JobManagementScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kelola Lowongan'),
+        foregroundColor: Colors.white,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: AppTheme.primaryGradient,
+          ),
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: () async {

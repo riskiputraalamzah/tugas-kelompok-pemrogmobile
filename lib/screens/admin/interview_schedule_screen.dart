@@ -26,6 +26,12 @@ class _InterviewScheduleScreenState extends State<InterviewScheduleScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Jadwal Interview'),
+        foregroundColor: Colors.white,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: AppTheme.primaryGradient,
+          ),
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: () async {

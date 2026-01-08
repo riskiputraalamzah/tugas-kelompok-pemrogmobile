@@ -115,6 +115,12 @@ class _JobFormScreenState extends State<JobFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit Lowongan' : 'Tambah Lowongan'),
+        foregroundColor: Colors.white,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: AppTheme.primaryGradient,
+          ),
+        ),
       ),
       body: Form(
         key: _formKey,

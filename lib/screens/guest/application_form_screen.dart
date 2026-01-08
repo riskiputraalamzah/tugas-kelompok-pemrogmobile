@@ -10,8 +10,15 @@ import '../../config/theme.dart';
 
 class ApplicationFormScreen extends StatefulWidget {
   final Job job;
+  final String? initialCoverLetter;
+  final Map<String, String>? initialData;
 
-  const ApplicationFormScreen({super.key, required this.job});
+  const ApplicationFormScreen({
+    super.key, 
+    required this.job,
+    this.initialCoverLetter,
+    this.initialData,
+  });
 
   @override
   State<ApplicationFormScreen> createState() => _ApplicationFormScreenState();
@@ -40,6 +47,22 @@ class _ApplicationFormScreenState extends State<ApplicationFormScreen> {
     'Motivasi',
     'Konfirmasi',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialCoverLetter != null) {
+      _coverLetterController.text = widget.initialCoverLetter!;
+    }
+    if (widget.initialData != null) {
+      _nameController.text = widget.initialData!['fullName'] ?? '';
+      _emailController.text = widget.initialData!['email'] ?? '';
+      _phoneController.text = widget.initialData!['phone'] ?? '';
+      _educationController.text = widget.initialData!['education'] ?? '';
+      _experienceController.text = widget.initialData!['experience'] ?? '';
+      _skillsController.text = widget.initialData!['skills'] ?? '';
+    }
+  }
 
   @override
   void dispose() {
