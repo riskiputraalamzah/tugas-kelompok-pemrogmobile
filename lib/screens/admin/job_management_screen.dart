@@ -61,6 +61,12 @@ class _JobManagementScreenState extends State<JobManagementScreen> {
       appBar: AppBar(
         title: const Text('Kelola Lowongan'),
         foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: AppTheme.primaryGradient,

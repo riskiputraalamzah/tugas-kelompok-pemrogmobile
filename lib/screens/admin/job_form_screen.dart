@@ -116,6 +116,12 @@ class _JobFormScreenState extends State<JobFormScreen> {
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit Lowongan' : 'Tambah Lowongan'),
         foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: AppTheme.primaryGradient,

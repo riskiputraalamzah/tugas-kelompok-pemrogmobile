@@ -211,6 +211,13 @@ class _BroadcastManagementScreenState extends State<BroadcastManagementScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kelola Info'),
+        foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: AppTheme.primaryGradient,

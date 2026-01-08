@@ -35,6 +35,12 @@ class _ApplicantListScreenState extends State<ApplicantListScreen> {
       appBar: AppBar(
         title: const Text('Daftar Pelamar'),
         foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: AppTheme.primaryGradient,

@@ -213,7 +213,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     builder: (context, constraints) {
                       // Responsive: 4 cols on desktop, 2 on mobile
                       final crossAxisCount = constraints.crossAxisExtent > 900 ? 4 : 2;
-                      final childAspectRatio = constraints.crossAxisExtent > 900 ? 1.8 : 1.5;
+                      // Adjust aspect ratio for small screens to prevent overflow
+                      final double childAspectRatio;
+                      if (constraints.crossAxisExtent > 900) {
+                        childAspectRatio = 1.8;
+                      } else if (constraints.crossAxisExtent > 400) {
+                        childAspectRatio = 1.4;
+                      } else if (constraints.crossAxisExtent > 320) {
+                        childAspectRatio = 1.1;
+                      } else {
+                        childAspectRatio = 0.95;
+                      }
                       
                       return SliverGrid(
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -363,13 +373,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -377,22 +388,28 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   color.withValues(alpha: 0.1),
                 ],
               ),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: color, size: 22),
+            child: Icon(icon, color: color, size: 18),
           ),
           const Spacer(),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w800,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: color,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
           const SizedBox(height: 2),
           Text(
             title,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
               fontWeight: FontWeight.w500,
             ),
           ),

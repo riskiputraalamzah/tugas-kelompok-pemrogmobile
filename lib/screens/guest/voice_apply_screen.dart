@@ -489,82 +489,150 @@ class _VoiceApplyScreenState extends State<VoiceApplyScreen>
 
         // Navigation buttons
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Row(
-            children: [
-              // Back button
-              if (_currentQuestionIndex > 0)
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _previousQuestion,
-                    icon: const Icon(Icons.arrow_back, size: 18),
-                    label: const Text('Kembali'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white70,
-                      side: BorderSide(color: Colors.white.withOpacity(0.3)),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isSmallScreen = constraints.maxWidth < 360;
+              
+              return Row(
+                children: [
+                  // Back button
+                  if (_currentQuestionIndex > 0)
+                    Flexible(
+                      flex: 1,
+                      child: SizedBox(
+                        height: 48,
+                        child: OutlinedButton(
+                          onPressed: _previousQuestion,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white70,
+                            side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isSmallScreen ? 8 : 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.arrow_back, size: 16),
+                              if (!isSmallScreen) ...[
+                                const SizedBox(width: 4),
+                                const Flexible(
+                                  child: Text(
+                                    'Kembali',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              if (_currentQuestionIndex > 0) const SizedBox(width: 12),
+                  if (_currentQuestionIndex > 0) const SizedBox(width: 8),
 
-              // Retry button
-              if (_currentAnswer.isNotEmpty && !_isListening)
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _retryCurrentQuestion,
-                    icon: const Icon(Icons.refresh, size: 18),
-                    label: const Text('Ulangi'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.orange,
-                      side: const BorderSide(color: Colors.orange),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  // Retry button
+                  if (_currentAnswer.isNotEmpty && !_isListening)
+                    Flexible(
+                      flex: 1,
+                      child: SizedBox(
+                        height: 48,
+                        child: OutlinedButton(
+                          onPressed: _retryCurrentQuestion,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.orange,
+                            side: const BorderSide(color: Colors.orange),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isSmallScreen ? 8 : 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.refresh, size: 16),
+                              if (!isSmallScreen) ...[
+                                const SizedBox(width: 4),
+                                const Flexible(
+                                  child: Text(
+                                    'Ulangi',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              if (_currentAnswer.isNotEmpty && !_isListening)
-                const SizedBox(width: 12),
+                  if (_currentAnswer.isNotEmpty && !_isListening)
+                    const SizedBox(width: 8),
 
-              // Skip button (for optional questions)
-              if (!_currentQuestion.isRequired && _currentAnswer.isEmpty)
-                Expanded(
-                  child: TextButton(
-                    onPressed: _skipQuestion,
-                    child: const Text(
-                      'Lewati',
-                      style: TextStyle(color: Colors.white54),
-                    ),
-                  ),
-                ),
-
-              // Next / Finish button
-              if (_currentAnswer.isNotEmpty && !_isListening)
-                Expanded(
-                  flex: 2,
-                  child: ElevatedButton.icon(
-                    onPressed: _nextQuestion,
-                    icon: Icon(
-                      _isLastQuestion ? Icons.check : Icons.arrow_forward,
-                      size: 18,
-                    ),
-                    label: Text(_isLastQuestion ? 'Selesai' : 'Lanjut'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  // Skip button (for optional questions)
+                  if (!_currentQuestion.isRequired && _currentAnswer.isEmpty)
+                    Flexible(
+                      flex: 1,
+                      child: TextButton(
+                        onPressed: _skipQuestion,
+                        child: const Text(
+                          'Lewati',
+                          style: TextStyle(color: Colors.white54, fontSize: 12),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-            ],
+
+                  // Next / Finish button
+                  if (_currentAnswer.isNotEmpty && !_isListening)
+                    Flexible(
+                      flex: 2,
+                      child: SizedBox(
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: _nextQuestion,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _isLastQuestion ? Icons.check : Icons.arrow_forward,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  _isLastQuestion ? 'Selesai' : 'Lanjut',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
         ),
       ],
