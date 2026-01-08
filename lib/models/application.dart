@@ -65,6 +65,15 @@ class Application {
   });
 
   factory Application.fromMap(Map<String, dynamic> map) {
+    // Safely convert aiScore - database might return int or double
+    double? parseAiScore(dynamic value) {
+      if (value == null) return null;
+      if (value is double) return value;
+      if (value is int) return value.toDouble();
+      if (value is String) return double.tryParse(value);
+      return null;
+    }
+
     return Application(
       id: map['id'] as String,
       jobId: map['job_id'] as String,
@@ -76,7 +85,7 @@ class Application {
       skills: map['skills'] as String,
       coverLetter: map['cover_letter'] as String,
       status: ApplicationStatusExtension.fromString(map['status'] as String),
-      aiScore: map['ai_score'] as double?,
+      aiScore: parseAiScore(map['ai_score']),
       aiLabel: map['ai_label'] as String?,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: map['updated_at'] != null

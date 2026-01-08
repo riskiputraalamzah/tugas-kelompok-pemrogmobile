@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/app_provider.dart';
 import '../../models/application.dart';
 import '../../models/interview.dart';
+import '../../models/job.dart'; // Added this import
 import '../../widgets/status_badge.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/skeleton_loader.dart';
@@ -21,6 +23,7 @@ class _CheckStatusScreenState extends State<CheckStatusScreen> {
   final _emailController = TextEditingController();
   List<Application>? _applications;
   Map<String, Interview?> _interviews = {};
+  Map<String, Job> _jobs = {};
   bool _isLoading = false;
   bool _hasSearched = false;
   bool _saveEmail = false;
@@ -61,6 +64,18 @@ class _CheckStatusScreenState extends State<CheckStatusScreen> {
     await prefs.setBool(_saveEmailKey, _saveEmail);
   }
 
+  Color _getJobColor(int index) {
+    final colors = [
+      AppTheme.primaryColor,
+      AppTheme.secondaryColor,
+      Colors.teal,
+      Colors.indigo,
+      Colors.orange.shade800,
+      Colors.purple,
+    ];
+    return colors[index % colors.length];
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -82,22 +97,35 @@ class _CheckStatusScreenState extends State<CheckStatusScreen> {
     setState(() {
       _isLoading = true;
       _hasSearched = true;
+      _jobs = {}; // Reset jobs
     });
 
     try {
       final provider = context.read<AppProvider>();
       final applications = await provider.getApplicationsByEmail(email);
       
-      // Get interviews for each application
+      // Get interviews and jobs for each application
       final interviews = <String, Interview?>{};
+      final jobs = <String, Job>{};
+
       for (final app in applications) {
+        // Get interview
         final interview = await provider.getInterviewByApplicationId(app.id);
         interviews[app.id] = interview;
+
+        // Get job details if not already loaded
+        if (!jobs.containsKey(app.jobId)) {
+          final job = await provider.getJobById(app.jobId);
+          if (job != null) {
+            jobs[app.jobId] = job;
+          }
+        }
       }
 
       setState(() {
         _applications = applications;
         _interviews = interviews;
+        _jobs = jobs;
         _isLoading = false;
       });
     } catch (e) {
@@ -138,9 +166,15 @@ class _CheckStatusScreenState extends State<CheckStatusScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+      child: Scaffold(
+        body: CustomScrollView(
+          slivers: [
           // Gradient Header
           SliverToBoxAdapter(
             child: Container(
@@ -378,321 +412,321 @@ class _CheckStatusScreenState extends State<CheckStatusScreen> {
                   ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildApplicationCard(Application app, Interview? interview) {
+    // Get job from loaded map, fallback if not found
+    final job = _jobs[app.jobId];
+    final index = _applications?.indexOf(app) ?? 0;
+    final color = _getJobColor(index);
+
     return Card(
+      clipBehavior: Clip.antiAlias,
       margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.work_outline,
-                    color: AppTheme.primaryColor,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FutureBuilder(
-                    future: context.read<AppProvider>().getJobById(app.jobId),
-                    builder: (context, snapshot) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            snapshot.data?.title ?? 'Loading...',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          Text(
-                            'Dilamar: ${DateFormat('dd MMM yyyy').format(app.createdAt)}',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-                StatusBadge(status: app.status),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Divider(),
-            const SizedBox(height: 12),
-            
-            // Status timeline
-            _buildStatusTimeline(app.status),
-            
-            // Interview info if available
-            if (interview != null) ...[
-              const SizedBox(height: 16),
-              const Divider(),
-              const SizedBox(height: 12),
-              Container(
+            // Visual Distinction: Colored Strip
+            Container(width: 6, color: color),
+            Expanded(
+              child: Padding(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.2),
-                  ),
-                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Job Header Row
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
-                          Icons.event,
-                          color: AppTheme.primaryColor,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Jadwal Interview',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: AppTheme.primaryColor,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                job?.title ?? 'Posisi tidak ditemukan',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: color,
+                                    ),
                               ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Dilamar: ${DateFormat('dd MMM yyyy').format(app.createdAt)}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
                         ),
+                        StatusBadge(status: app.status),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    _buildInterviewInfo(
-                      Icons.calendar_today,
-                      DateFormat('EEEE, dd MMMM yyyy', 'id').format(interview.scheduledAt),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildInterviewInfo(
-                      Icons.access_time,
-                      DateFormat('HH:mm').format(interview.scheduledAt) + ' WIB',
-                    ),
-                    const SizedBox(height: 8),
-                    _buildInterviewInfo(Icons.location_on, interview.location),
-                    if (interview.notes != null && interview.notes!.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      _buildInterviewInfo(Icons.note, interview.notes!),
-                    ],
                     const SizedBox(height: 16),
-                    if (interview.isConfirmed)
+                    const Divider(),
+                    const SizedBox(height: 12),
+
+                    // Status timeline
+                    _buildStatusTimeline(app.status),
+
+                    // Interview info if available
+                    if (interview != null) ...[
+                      const SizedBox(height: 16),
+                      const Divider(),
+                      const SizedBox(height: 12),
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppTheme.acceptedColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                          ),
                         ),
-                        child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(
-                              Icons.check_circle,
-                              color: AppTheme.acceptedColor,
-                              size: 20,
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.event,
+                                  color: AppTheme.primaryColor,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Jadwal Interview',
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        color: AppTheme.primaryColor,
+                                      ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Kehadiran telah dikonfirmasi',
+                            const SizedBox(height: 12),
+                            _buildInterviewInfo(
+                              Icons.calendar_today,
+                              DateFormat('EEEE, dd MMMM yyyy', 'id')
+                                  .format(interview.scheduledAt),
+                            ),
+                            const SizedBox(height: 8),
+                            _buildInterviewInfo(
+                              Icons.access_time,
+                              DateFormat('HH:mm').format(interview.scheduledAt) +
+                                  ' WIB',
+                            ),
+                            const SizedBox(height: 8),
+                            _buildInterviewInfo(
+                                Icons.location_on, interview.location),
+                            if (interview.notes != null &&
+                                interview.notes!.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              _buildInterviewInfo(Icons.note, interview.notes!),
+                            ],
+                            const SizedBox(height: 16),
+                            if (interview.isConfirmed)
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.acceptedColor
+                                      .withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.check_circle,
+                                      color: AppTheme.acceptedColor,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Kehadiran telah dikonfirmasi',
+                                      style: TextStyle(
+                                        color: AppTheme.acceptedColor,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            else
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: () =>
+                                      _confirmInterview(interview.id),
+                                  icon: const Icon(Icons.check),
+                                  label: const Text('Konfirmasi Kehadiran'),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    // Celebration card for accepted status
+                    if (app.status == ApplicationStatus.accepted) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppTheme.acceptedColor,
+                              AppTheme.acceptedColor.withOpacity(0.8),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.acceptedColor.withOpacity(0.4),
+                              blurRadius: 12,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 72,
+                              height: 72,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.celebration,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              '🎉 Selamat! 🎉',
                               style: TextStyle(
-                                color: AppTheme.acceptedColor,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Anda diterima sebagai ${job?.title ?? 'posisi ini'}!',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                'Tim HR akan segera menghubungi Anda',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      )
-                    else
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: () => _confirmInterview(interview.id),
-                          icon: const Icon(Icons.check),
-                          label: const Text('Konfirmasi Kehadiran'),
-                        ),
                       ),
-                  ],
-                ),
-              ),
-            ],
-            
-            // Celebration card for accepted status
-            if (app.status == ApplicationStatus.accepted) ...[
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppTheme.acceptedColor,
-                      AppTheme.acceptedColor.withOpacity(0.8),
                     ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.acceptedColor.withOpacity(0.4),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // Celebration icon with animation effect
-                    Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.celebration,
-                        color: Colors.white,
-                        size: 40,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      '🎉 Selamat! 🎉',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    FutureBuilder(
-                      future: context.read<AppProvider>().getJobById(app.jobId),
-                      builder: (context, snapshot) {
-                        final jobTitle = snapshot.data?.title ?? 'posisi yang dilamar';
-                        return Text(
-                          'Anda diterima sebagai $jobTitle!',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
+
+                    // Supportive card for rejected status
+                    if (app.status == ApplicationStatus.rejected) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.grey.shade300,
                           ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        'Tim HR akan segera menghubungi Anda',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            
-            // Supportive card for rejected status
-            if (app.status == ApplicationStatus.rejected) ...[
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Colors.grey.shade300,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.sentiment_neutral_rounded,
-                        color: Colors.grey.shade600,
-                        size: 36,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Terima Kasih Telah Melamar',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    FutureBuilder(
-                      future: context.read<AppProvider>().getJobById(app.jobId),
-                      builder: (context, snapshot) {
-                        final jobTitle = snapshot.data?.title ?? 'posisi ini';
-                        return Text(
-                          'Sayangnya, Anda belum berhasil dalam seleksi $jobTitle kali ini.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.lightbulb_outline,
-                            color: AppTheme.primaryColor,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Jangan menyerah! Tetap semangat dan coba lamar posisi lainnya',
-                              style: TextStyle(
-                                color: AppTheme.primaryColor,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 64,
+                              height: 64,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.sentiment_neutral_rounded,
+                                color: Colors.grey.shade600,
+                                size: 36,
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                            Text(
+                              'Terima Kasih Telah Melamar',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Sayangnya, Anda belum berhasil dalam seleksi ${job?.title ?? 'posisi ini'} kali ini.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.lightbulb_outline,
+                                    color: AppTheme.primaryColor,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      'Jangan menyerah! Tetap semangat dan coba lamar posisi lainnya',
+                                      style: TextStyle(
+                                        color: AppTheme.primaryColor,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
-            ],
+            ),
           ],
         ),
       ),
