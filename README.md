@@ -8,7 +8,7 @@
 
 **Aplikasi Applicant Tracking System (ATS) berbasis Flutter**
 
-*Temukan karir impianmu dengan mudah! ✨*
+_Temukan karir impianmu dengan mudah! ✨_
 
 </div>
 
@@ -26,25 +26,27 @@
 ## ✨ Fitur Utama
 
 ### Untuk Pelamar
-| Fitur | Deskripsi |
-|-------|-----------|
-| 🔍 **Jelajahi Lowongan** | Lihat daftar lowongan pekerjaan yang tersedia |
-| 📝 **Lamar Pekerjaan** | Isi formulir lamaran dengan mudah |
-| 🎙️ **Voice Input** | Isi lamaran menggunakan suara (speech-to-text) |
-| 📄 **Upload CV** | Upload CV dan parsing otomatis dengan AI |
-| 📊 **Cek Status** | Lacak progress lamaran dengan timeline visual |
-| 📢 **Info/Pengumuman** | Lihat pengumuman terbaru dari perusahaan |
-| 🎉 **Status Visual** | Tampilan menarik untuk status Diterima/Ditolak |
+
+| Fitur                    | Deskripsi                                      |
+| ------------------------ | ---------------------------------------------- |
+| 🔍 **Jelajahi Lowongan** | Lihat daftar lowongan pekerjaan yang tersedia  |
+| 📝 **Lamar Pekerjaan**   | Isi formulir lamaran dengan mudah              |
+| 🎙️ **Voice Input**       | Isi lamaran menggunakan suara (speech-to-text) |
+| 📄 **Upload CV**         | Upload CV dan parsing otomatis dengan AI       |
+| 📊 **Cek Status**        | Lacak progress lamaran dengan timeline visual  |
+| 📢 **Info/Pengumuman**   | Lihat pengumuman terbaru dari perusahaan       |
+| 🎉 **Status Visual**     | Tampilan menarik untuk status Diterima/Ditolak |
 
 ### Untuk Admin
-| Fitur | Deskripsi |
-|-------|-----------|
-| 📋 **Kelola Lowongan** | Tambah, edit, buka/tutup lowongan |
-| 👥 **Daftar Pelamar** | Lihat semua lamaran dengan sorting & grouping |
-| 🤖 **AI Scoring** | Penilaian otomatis pelamar menggunakan Gemini AI |
-| 📅 **Jadwal Interview** | Atur jadwal dengan validasi konflik otomatis |
-| ✅ **Keputusan** | Terima/Tolak pelamar dengan satu klik |
-| 📢 **Kelola Info** | CRUD pengumuman/broadcast |
+
+| Fitur                   | Deskripsi                                        |
+| ----------------------- | ------------------------------------------------ |
+| 📋 **Kelola Lowongan**  | Tambah, edit, buka/tutup lowongan                |
+| 👥 **Daftar Pelamar**   | Lihat semua lamaran dengan sorting & grouping    |
+| 🤖 **AI Scoring**       | Penilaian otomatis pelamar menggunakan Gemini AI |
+| 📅 **Jadwal Interview** | Atur jadwal dengan validasi konflik otomatis     |
+| ✅ **Keputusan**        | Terima/Tolak pelamar dengan satu klik            |
+| 📢 **Kelola Info**      | CRUD pengumuman/broadcast                        |
 
 ---
 
@@ -64,10 +66,9 @@
 
 <div align="center">
 
-| Halaman Depan | Cek Status | Detail Lowongan |
-|:-------------:|:----------:|:---------------:|
+|                Halaman Depan                 |                     Cek Status                     |                     Detail Lowongan                     |
+| :------------------------------------------: | :------------------------------------------------: | :-----------------------------------------------------: |
 | <img src="screenshots/home.png" width="200"> | <img src="screenshots/cek-status.png" width="200"> | <img src="screenshots/detail-lowongan.png" width="200"> |
-
 
 </div>
 
@@ -76,6 +77,7 @@
 ## 🚀 Cara Menjalankan
 
 ### Prerequisites
+
 - Flutter SDK (>=3.0.0)
 - Dart SDK (>=3.0.0)
 - Akun Supabase
@@ -83,17 +85,20 @@
 ### Langkah-langkah
 
 1. **Clone repository**
+
    ```bash
    git clone https://github.com/username/apps_tracking.git
    cd apps_tracking
    ```
 
 2. **Install dependencies**
+
    ```bash
    flutter pub get
    ```
 
 3. **Setup Supabase**
+
    - Buat project di [Supabase](https://supabase.com)
    - Jalankan SQL schema dari `supabase_schema.sql`
    - Update kredensial di `lib/services/supabase_service.dart`
@@ -126,6 +131,7 @@ lib/
 ## 🔐 Kredensial Admin
 
 Untuk mengakses panel admin:
+
 - **Username**: `admin`
 - **Password**: `admin123`
 
@@ -136,6 +142,7 @@ Untuk mengakses panel admin:
 ## 🎨 Design System
 
 Aplikasi menggunakan tema **Glints-inspired** dengan:
+
 - **Primary Color**: Indigo (`#5C6BC0`)
 - **Secondary Color**: Cyan (`#00BCD4`)
 - **Accent Color**: Orange (`#FF7043`)
@@ -145,11 +152,11 @@ Aplikasi menggunakan tema **Glints-inspired** dengan:
 
 ## 👥 Tim Pengembang
 
-| Nama | NIM |
-|------|------|
-| Riski Putra Alamzah | 221080200100 |
+| Nama                    | NIM          |
+| ----------------------- | ------------ |
+| Riski Putra Alamzah     | 221080200100 |
 | Muhammad Sulthon Abiyyu | 221080200036 |
-
+| Muhammad Aufa Izul Haq  | 221080200021 |
 
 ---
 
